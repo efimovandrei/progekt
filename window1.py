@@ -35,9 +35,9 @@ def terminate():
 def start_screen():
     intro_text = ["ВТОРЖЕНИЕ", "",
                   "Выберите уровень",
-                  "Легкий: нажмите 1",
-                  "Средний: нажмите 2",
-                  "Сложный: нажмите 3"]
+                  "Легкий: нажмите вниз",
+                  "Средний: нажмите вверх",
+                  "Сложный: нажмите влево"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -56,9 +56,13 @@ def start_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                return  # начинаем игру
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    return 1  # начинаем игру
+                if event.key == pygame.K_LEFT:
+                    return 3
+                if event.key == pygame.K_UP:
+                    return 2
         pygame.display.flip()
         clock.tick(FPS)
 
