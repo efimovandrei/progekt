@@ -34,9 +34,10 @@ def terminate():
 
 def start_screen():
     intro_text = ["ВТОРЖЕНИЕ", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
+                  "Выберите уровень",
+                  "Легкий: нажмите 1",
+                  "Средний: нажмите 2",
+                  "Сложный: нажмите 3"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
