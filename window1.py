@@ -71,7 +71,7 @@ tile_images = {
     'wall': load_image('box.png'),
     'empty': load_image('grass.png')
 }
-player_image = load_image('mario.png')
+player_image = load_image('hero.png')
 
 tile_width = tile_height = 50
 
@@ -102,6 +102,14 @@ class Player(pygame.sprite.Sprite):
         super().__init__(player_group, all_sprites)
         self.image = player_image
         self.rect = self.image.get_rect().move(
+            tile_width * pos_x + 5, tile_height * pos_y + 5)
+
+
+class Ship(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(ships_group, all_sprites)
+        self.image = player_image
+        self.rect = self.image.get_rect().move(
             tile_width * pos_x + 15, tile_height * pos_y + 5)
 
 
@@ -111,6 +119,7 @@ player = None
 all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
+ships_group = pygame.sprite.Group()
 
 
 def generate_level(level):
