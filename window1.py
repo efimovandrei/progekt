@@ -1,10 +1,11 @@
 import pygame
 import os
 import sys
+import random
 
 FPS = 50
 STEP = 50
-size = WIDTH, HEIGHT = 450, 300
+size = WIDTH, HEIGHT = 450, 500
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
@@ -46,7 +47,7 @@ def start_screen():
     for line in intro_text:
         string_rendered = font.render(line, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        text_coord += 10
+        text_coord += 50
         intro_rect.top = text_coord
         intro_rect.x = 10
         text_coord += intro_rect.height
@@ -110,7 +111,13 @@ class Ship(pygame.sprite.Sprite):
         super().__init__(ships_group, all_sprites)
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = pos_x
+        self.rect.y = pos_y
+
+    def update(self):
+        self.rect = self.rect.move(0, 1)
 
 
 player = None
@@ -141,14 +148,18 @@ def generate_level(level):
 player, level_x, level_y = generate_level(load_level('map.txt'))
 
 pygame.init()
-start_screen()
+level = start_screen()
 
+ship = False
+v = 50
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            ship = True
+            Ship(random.choice([50, 100, 150, 200, 250, 300, 350]), 0)
             if event.key == pygame.K_RIGHT:
                 if player.rect.x + STEP <= WIDTH - 80:
                     player.rect.x += STEP
@@ -158,6 +169,11 @@ while running:
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     player_group.draw(screen)
-    pygame.display.flip()
+    if ship:
+        ships_group.draw(screen)
+        ships_group.update()
+    for i in ships_group:
+        i.rect.y += v / FPS * level
     clock.tick(FPS)
+    pygame.display.flip()
 terminate()
