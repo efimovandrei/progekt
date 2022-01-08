@@ -73,6 +73,7 @@ tile_images = {
     'empty': load_image('grass.png')
 }
 player_image = load_image('hero.png')
+pule_image = load_image('pula.png')
 
 tile_width = tile_height = 50
 
@@ -120,6 +121,20 @@ class Ship(pygame.sprite.Sprite):
         self.rect = self.rect.move(0, 1)
 
 
+class Pule(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__(pules_group, all_sprites)
+        self.image = pule_image
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = pos_x
+        self.rect.y = pos_y
+
+    def update(self):
+        self.rect = self.rect.move(0, 1)
+
+
 player = None
 
 # группы спрайтов
@@ -127,6 +142,7 @@ all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 ships_group = pygame.sprite.Group()
+pules_group = pygame.sprite.Group()
 
 
 def generate_level(level):
@@ -151,6 +167,7 @@ pygame.init()
 level = start_screen()
 
 ship = False
+pule = False
 v = 50
 running = True
 while running:
@@ -166,6 +183,9 @@ while running:
             if event.key == pygame.K_LEFT:
                 if player.rect.x - STEP >= 50:
                     player.rect.x -= STEP
+            if event.key == pygame.K_w:
+                pule = True
+                Pule(player.rect.x, 350)
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     player_group.draw(screen)
@@ -174,6 +194,11 @@ while running:
         ships_group.update()
     for i in ships_group:
         i.rect.y += v / FPS * level
+    if pule:
+        pules_group.draw(screen)
+    for i in pules_group:
+        i.rect.y -= v / FPS * level
+
     clock.tick(FPS)
     pygame.display.flip()
 terminate()
