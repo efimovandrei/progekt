@@ -2,12 +2,15 @@ import pygame
 import os
 import sys
 import random
+import pyglet
 
 FPS = 50
 STEP = 50
 size = WIDTH, HEIGHT = 450, 500
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
+animation = pyglet.image.load_animation(
+           "data/animation.gif")
 
 
 def load_image(name, colorkey=None):
