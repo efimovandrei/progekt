@@ -224,7 +224,7 @@ while running:
         for i in pules_group:
             vin_ships += i.update()
     for i in pules_group:
-        i.rect.y -= v / FPS * level
+        i.rect.y -= v / FPS * level * 2
 
     clock.tick(FPS)
     pygame.display.flip()
