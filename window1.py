@@ -91,7 +91,21 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-class Tile(pygame.sprite.Sprite):
+class Tilewall(pygame.sprite.Sprite):
+    def __init__(self, tile_type, pos_x, pos_y):
+        super().__init__(wales_group, all_sprites)
+        self.image = tile_images[tile_type]
+        self.rect = self.image.get_rect().move(
+            tile_width * pos_x, tile_height * pos_y)
+
+    def update(self):
+        if not pygame.sprite.spritecollide(self, ships_group, True):
+            return 0
+        else:
+            return 1
+
+
+class Tilegreen(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
         self.image = tile_images[tile_type]
@@ -118,7 +132,7 @@ class Ship(pygame.sprite.Sprite):
         self.rect.y = pos_y
 
     def update(self):
-        self.rect = self.rect.move(0, 1)
+        pass
 
 
 class Pule(pygame.sprite.Sprite):
@@ -132,7 +146,10 @@ class Pule(pygame.sprite.Sprite):
         self.rect.y = pos_y
 
     def update(self):
-        self.rect = self.rect.move(0, 1)
+        if not pygame.sprite.spritecollide(self, ships_group, True):
+            return 0
+        else:
+            return 1
 
 
 player = None
@@ -143,6 +160,7 @@ tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 ships_group = pygame.sprite.Group()
 pules_group = pygame.sprite.Group()
+wales_group = pygame.sprite.Group()
 
 
 def generate_level(level):
@@ -150,11 +168,11 @@ def generate_level(level):
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '.':
-                Tile('empty', x, y)
+                Tilegreen('empty', x, y)
             elif level[y][x] == '#':
-                Tile('wall', x, y)
+                Tilewall('wall', x, y)
             elif level[y][x] == '@':
-                Tile('empty', x, y)
+                Tilegreen('empty', x, y)
                 new_player = Player(x, y)
     # вернем игрока, а также размер поля в клетках
     print(new_player)
@@ -169,6 +187,8 @@ level = start_screen()
 ship = False
 pule = False
 v = 50
+vin_ships = 0
+life = 3
 running = True
 while running:
     for event in pygame.event.get():
@@ -185,9 +205,14 @@ while running:
                     player.rect.x -= STEP
             if event.key == pygame.K_w:
                 pule = True
-                Pule(player.rect.x, 350)
+                Pule(player.rect.x + 15, 350)
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
+    wales_group.draw(screen)
+    for i in wales_group:
+        life -= i.update()
+        if life == 0:
+            running = False
     player_group.draw(screen)
     if ship:
         ships_group.draw(screen)
@@ -196,9 +221,12 @@ while running:
         i.rect.y += v / FPS * level
     if pule:
         pules_group.draw(screen)
+        for i in pules_group:
+            vin_ships += i.update()
     for i in pules_group:
         i.rect.y -= v / FPS * level
 
     clock.tick(FPS)
     pygame.display.flip()
+print(vin_ships)
 terminate()
