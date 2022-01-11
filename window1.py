@@ -2,6 +2,11 @@ import pygame
 import os
 import sys
 import random
+import sqlite3
+from PyQt5 import uic
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QWidget, QLineEdit, QPushButton, QLCDNumber, \
+    QInputDialog, QTableWidgetItem
 
 FPS = 50
 STEP = 50
@@ -38,16 +43,17 @@ def start_screen():
                   "Выберите уровень",
                   "Легкий: нажмите вниз",
                   "Средний: нажмите вверх",
-                  "Сложный: нажмите влево"]
+                  "Сложный: нажмите влево",
+                  "Выстрел: нажмите W"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
-    text_coord = 50
+    text_coord = 30
     for line in intro_text:
         string_rendered = font.render(line, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        text_coord += 50
+        text_coord += 30
         intro_rect.top = text_coord
         intro_rect.x = 10
         text_coord += intro_rect.height
@@ -64,6 +70,36 @@ def start_screen():
                     return 3
                 if event.key == pygame.K_UP:
                     return 2
+        pygame.display.flip()
+        clock.tick(FPS)
+
+
+def close_screen(vin_ships):
+    intro_text = ['Набранные очки:',
+                  f'{vin_ships}',
+                  'Просмотр таблицы лучших: нажмите X']
+    fon = pygame.transform.scale(load_image('end.png'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 30)
+    text_coord = 10
+    for line in intro_text:
+        string_rendered = font.render(line, True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        text_coord += 30
+        intro_rect.top = text_coord
+        intro_rect.x = 10
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_x:
+                    return 1
+                else:
+                    terminate()
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -89,6 +125,27 @@ def load_level(filename):
 
     # дополняем каждую строку пустыми клетками ('.')
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
+
+
+class DBSample(QWidget):
+    def __init__(self):
+        super().__init__()
+        uic.loadUi('результаты.ui', self)
+        self.connection = sqlite3.connect("data/results.db")
+
+        query = 'SELECT name, vin_ships FROM results'
+        res = self.connection.cursor().execute(query).fetchall()
+        # Заполним размеры таблицы
+        self.tableWidget.setColumnCount(2)
+
+        self.tableWidget.setRowCount(0)
+        # Заполняем таблицу элементами
+        for i, row in enumerate(res):
+            self.tableWidget.setRowCount(
+                self.tableWidget.rowCount() + 1)
+            for j, elem in enumerate(row):
+                self.tableWidget.setItem(
+                    i, j, QTableWidgetItem(str(elem)))
 
 
 class Tilewall(pygame.sprite.Sprite):
@@ -228,5 +285,8 @@ while running:
 
     clock.tick(FPS)
     pygame.display.flip()
-print(vin_ships)
+a = close_screen(vin_ships)
+if a:
+    pass
+
 terminate()
